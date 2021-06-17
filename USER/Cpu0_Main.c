@@ -38,16 +38,18 @@ int core0_main(void)
 	//用户在此处调用各种初始化函数等
 
     all_init();
-    menu_init();
-//    params_read();
-//    params_load();
-    ips200_clear(WHITE);
-    mt9v03x_finish_flag=0;
+    dianya=0;
 
     //等待所有核心初始化完毕
-	IfxCpu_emitEvent(&g_cpuSyncEvent);
-	IfxCpu_waitEvent(&g_cpuSyncEvent, 0xFFFF);
-	enableInterrupts();
+    IfxCpu_emitEvent(&g_cpuSyncEvent);
+    IfxCpu_waitEvent(&g_cpuSyncEvent, 0xFFFF);
+    enableInterrupts();
+
+    //menu_init();
+    //params_read();
+    //params_load();
+    ips200_clear(WHITE);
+    mt9v03x_finish_flag=0;
 
 	frames_nolight=0;  //丢灯之后的帧数
     frames = 0;        //帧差法记录帧数
@@ -59,22 +61,15 @@ int core0_main(void)
     //注意 从V1.1.6版本之后  printf打印的信息从串口输出具体可以学习库例程6-Printf_Demo
 	while (TRUE)
 	{
-
-	    uint16 dianya=0;
-	    dianya = adc_convert(ADC_0,ADC0_CH4_A4,ADC_12BIT);
-	    if(dianya>=DIANYA_MAX) carCtrl.mode = CTRL_START;
-	    if(dianya<=DIANYA_MIN) carCtrl.mode = CTRL_STOP;
 	    if(mt9v03x_finish_flag==1)
 	    {
+
 	        frames++;   //帧数+1
 	        if(light_find==1)//上一帧图像找到灯了
 	        {
 	            frames_nolight++;
 	        }
-	        //printf("dianya: %d\n", dianya);
 	        image_deal();
-
-
 	        mt9v03x_finish_flag=0;
 	    }
 
@@ -87,12 +82,18 @@ void all_init(void)
     drive_init();
     ips200_init();
     mt9v03x_init();
+
     gpt12_init(GPT12_T2,MOTOR_A_ENCODER_1,MOTOR_A_ENCODER_2);
     gpt12_init(GPT12_T3,MOTOR_B_ENCODER_1,MOTOR_B_ENCODER_2);
+
     pit_interrupt_ms(CCU6_0, PIT_CH0, 10);
+    pit_interrupt_ms(CCU6_1,PIT_CH1,1000);
 
     uart_init(SLAVE_UART, 115200, SLAVE_TX, SLAVE_RX);  //初始化蓝牙
     adc_init(ADC_0,ADC0_CH4_A4);
+
+    gtm_pwm_init(BEEP_PIN, 3000, 0);
+    carControl_init();
 }
 
 

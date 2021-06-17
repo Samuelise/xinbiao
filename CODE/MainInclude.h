@@ -33,6 +33,8 @@
 
 //·äÃùÆ÷
 #define BEEP_PIN    ATOM0_CH4_P21_6
+#define BEEP_ON     pwm_duty(BEEP_PIN, 5000)
+#define BEEP_OFF    pwm_duty(BEEP_PIN, 0)
 
 //²¦Âë¿ª¹Ø
 #define BOMA_PIN_1    P10_1
@@ -65,5 +67,3 @@ extern uint8 light_find;
 
 
 #endif
-
-

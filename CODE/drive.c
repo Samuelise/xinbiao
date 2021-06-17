@@ -11,18 +11,19 @@ float32 motorP = 50;
 float32 motorI = 1;
 float32 motorD = 0;
 
-float32 servoP = 1;   //舵机的p值
-float32 servoD = 0; //d值
+float32 servoP = 1.1;   //舵机的p值
+float32 servoD = 0.1; //d值
 
 void motor_test(void)
 {
     //gpio_set(MOTOR_A_PIN_1, 0);
-    drive_motor(5000,-5000);
+    drive_motor(7000,-7000);
 }
 
 
 void drive_init(void)
 {
+    leftspeed=0;rightspeed=0;
     gpio_init(MOTOR_A_PIN_1, GPO, 0, PUSHPULL);
     gpio_init(MOTOR_A_PIN_2, GPO, 0, PUSHPULL);
     gpio_init(MOTOR_B_PIN_1, GPO, 0, PUSHPULL);

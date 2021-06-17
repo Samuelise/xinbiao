@@ -60,9 +60,32 @@ IFX_INTERRUPT(cc61_pit_ch0_isr, 0, CCU6_1_CH0_ISR_PRIORITY)
 
 }
 
+#define DIANYA_TH 100
 IFX_INTERRUPT(cc61_pit_ch1_isr, 0, CCU6_1_CH1_ISR_PRIORITY)
 {
 	enableInterrupts();//开启中断嵌套
+	static uint16 dianya_last;
+	dianya = adc_convert(ADC_0,ADC0_CH4_A4,ADC_12BIT);
+
+	int16 delta;
+	delta = dianya-dianya_last;
+	dianya_last = dianya;
+	/*
+	 *  电压大于设定值，启动
+	 *  电压小于阈值，进入等待充电模式（离灯越近，速度越慢）
+	 *  等待充电模式下，电压增量超过阈值，停车充电
+	*/
+    if(dianya>=DIANYA_MAX) {
+        BEEP_ON;
+        BEEP_OFF;
+        carCtrl.mode = CTRL_START;
+    }
+    else if(dianya<=DIANYA_MIN&&carCtrl.mode==CTRL_START) carCtrl.mode = CTRL_NEED;
+
+    if(carCtrl.mode == CTRL_NEED&&delta>=DIANYA_TH)carCtrl.mode = CTRL_STOP;
+
+    if(carCtrl.mode==CTRL_STOP)
+        ips200_showuint16(0, 216, dianya);
 	PIT_CLEAR_FLAG(CCU6_1, PIT_CH1);
 
 }

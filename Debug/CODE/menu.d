@@ -396,3 +396,5 @@ menu.o :	../CODE/menu.h
 ../CODE/menu.h :
 menu.o :	../CODE/params.h
 ../CODE/params.h :
+menu.o :	../CODE/imagedeal.h
+../CODE/imagedeal.h :

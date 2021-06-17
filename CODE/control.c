@@ -12,6 +12,7 @@ int16 leftspeed;
 int16 rightspeed;
 int16 speed;
 int16 differ;
+uint16 dianya;
 /********************车辆控制信息初始化********************/
 void carControl_init(void)
 {
@@ -32,13 +33,13 @@ void carControl(void)
             speedControl();
             break;
         case CTRL_STOP:    //刹车
-            hopeSpeed=0;
             speedControl();
             break;
         case CTRL_DEBUG:   //debug模式，小车不跑
             drive_motor(0,0);
             break;
         default:
+            speedControl();
         break;
     }
 }
@@ -46,16 +47,25 @@ void carControl(void)
 //速度控制函数，根据赛道信息，设定不同的速度期望值
 void speedControl(void)
 {
+//    carCtrl.differ=0;
     int16 speed=(rightspeed+leftspeed)/2;
-    hopeSpeed=100;
+    if(carCtrl.mode==CTRL_STOP)hopeSpeed=0;
+    else hopeSpeed=80;
     int16 rightSpeedHope ;
     int16 leftSpeedHope ;
     rightSpeedHope = hopeSpeed - hopeSpeed * (carCtrl.differ / 80.0);
     leftSpeedHope = hopeSpeed + hopeSpeed * (carCtrl.differ / 80.0);
-    if(differ>=80){
-        leftSpeedHope=hopeSpeed;
-        rightSpeedHope=-hopeSpeed;
+
+    if(differ>=80)//找不到灯，原地打转
+    {
+        leftSpeedHope=hopeSpeed/2;
+        rightSpeedHope=-hopeSpeed/2;
     }
+    if(leftspeed==0&&rightspeed==0)//抵住边缘车动不了
+    {
+
+    }
+
     pid_motor(leftSpeedHope, rightSpeedHope, leftspeed, rightspeed);
     //motor_test();
 }
